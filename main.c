@@ -74,6 +74,7 @@ void finalizaTempo(time_t inicio, ArvoreInfo *info){
 	//https://www.techiedelight.com/find-execution-time-c-program/
 }
 
+//Operacoes para arvore AVL
 void imprimeArvores(ArvoreInfo abb, ArvoreInfo heap, ArvoreInfo avl){
 	printf("heap:\n");
 	imprimeInfo(heap);
@@ -97,47 +98,91 @@ void imprimeArvores(ArvoreInfo abb, ArvoreInfo heap, ArvoreInfo avl){
  
  void rotacaoSimplesEsq(TipoApontador *ppRaiz){
 	 TipoApontador pAux;
-	 pAux = (*ppRaiz)->pDir;
-	 (*ppRaiz)->pDir = pAux->pEsq;
-	 pAux->pEsq = (*ppRaiz);
+	 pAux = (*ppRaiz)->dir;
+	 (*ppRaiz)->dir = pAux->esq;
+	 pAux->esq = (*ppRaiz);
 	 (*ppRaiz) = pAux;
 }
 
 void rotacaoSimplesDir(TipoApontador *ppRaiz){
 	 TipoApontador pAux;
-	 pAux = (*ppRaiz)->pEsq;
-	 (*ppRaiz)->pEsq = pAux->pDir;
-	 pAux->pDir = (*ppRaiz);
+	 pAux = (*ppRaiz)->esq;
+	 (*ppRaiz)->esq = pAux->dir;
+	 pAux->dir = (*ppRaiz);
 	 (*ppRaiz) = pAux;
 }
-  
+
+int fatorBalanceamento(TipoApontador pRaiz){
+	 if (pRaiz == NULL) return 0;
+	 return Altura(pRaiz->esq)- Altura(pRaiz->dir);
+}
+
+int Altura(TipoApontador pRaiz){
+	 int iEsq,iDir;
+	 if (pRaiz == NULL) return 0;
+	 
+	 iEsq = Altura(pRaiz->esq);
+	 iDir = Altura(pRaiz->dir);
+	 
+	 if ( iEsq > iDir )	return iEsq + 1;
+	 else return iDir + 1;
+}
+ 
 int rotacaoDuplaEsq(TipoApontador *ppRaiz){
-	 int fbe = FB ( (*ppRaiz)->pEsq );
+	 int fbe = fatorBalanceamento((*ppRaiz)->esq );
 	 if ( fbe > 0 ){
 	 	rotacaoSimplesDir(ppRaiz);
 	 	return 1;
 	}
 	 else if (fbe < 0 ){ 
-	 	rotacaoSimplesEsq( &((*ppRaiz)->pEsq));
+	 	rotacaoSimplesEsq(&((*ppRaiz)->esq));
 	 	rotacaoSimplesDir( ppRaiz );
 	 	return 1;
 	}
 	 return 0;
 }
-int BalancaDireita(TipoApontador *ppRaiz){
-	 int fbd = FB( (*ppRaiz)->pDir);
+
+int rotacaoDuplaDir(TipoApontador *ppRaiz){
+	 int fbd = fatorBalanceamento( (*ppRaiz)->dir);
 	 if ( fbd < 0 ){
-	 rotacaoSimplesEsq(ppRaiz);
-	 return 1;
+		 rotacaoSimplesEsq(ppRaiz);
+		 return 1;
 	 }
 	 else if (fbd > 0 ){ 
-	 rotacaoSimplesDir( &((*ppRaiz)->pDir) );
-	 rotacaoSimplesEsq( ppRaiz );
+		 rotacaoSimplesDir( &((*ppRaiz)->dir) );
+		 rotacaoSimplesEsq( ppRaiz );
+		 return 1;
+	}
+	 return 0;
+}
+
+int BalancaEsquerda(TipoApontador *ppRaiz){
+	 int fbe = fatorBalanceamento((*ppRaiz)->esq);
+	 if ( fbe > 0 ) {
+	 rotacaoSimplesDir(ppRaiz);
+	 return 1;
+	 }
+	 else if (fbe < 0 ){ 
+	 rotacaoSimplesEsq( &((*ppRaiz)->esq) );
+	 rotacaoSimplesDir(ppRaiz);
 	 return 1;
 	 }
 	 return 0;
 }
 
+int BalancaDireita(TipoApontador *ppRaiz){
+	 int fbd = fatorBalanceamento( (*ppRaiz)->dir);
+	 if ( fbd < 0 ){
+	 rotacaoSimplesEsq(ppRaiz);
+	 return 1;
+	 }
+	 else if (fbd > 0 ){ 
+	 rotacaoSimplesDir( &((*ppRaiz)->dir) );
+	 rotacaoSimplesEsq( ppRaiz );
+	 return 1;
+	 }
+	 return 0;
+}
 
 
 int main(){
