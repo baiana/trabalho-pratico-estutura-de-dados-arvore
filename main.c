@@ -19,7 +19,7 @@ typedef struct TipoNo {
 void imprimeInfo(ArvoreInfo a){ 
 printf("%d comparacoes\n%.4lf\n\n",a.cmp,a.tempo);
 }
-
+//Operacoes para arvore ABB
 void inicializarABBeAVL(TipoApontador  *arvore,ArvoreInfo *ai) {
 	 *arvore = NULL;
 	 ai->cmp = 0;
@@ -67,9 +67,9 @@ Palavra removeEspeciais(char* name){
 	return p;
 }
 
-void finalizaTempo(time_t inicio, ArvoreInfo *info){
+void finalizaTempo(ArvoreInfo *info){
 	time_t fim = time(NULL); 
-	info->tempo = difftime(fim, inicio);
+	info->tempo = difftime(fim, info->tempo);
 	printf("\ntempo abb: %lf\ntempo compara:%d",info->tempo,info->cmp);
 	//https://www.techiedelight.com/find-execution-time-c-program/
 }
@@ -96,7 +96,7 @@ void imprimeArvores(ArvoreInfo abb, ArvoreInfo heap, ArvoreInfo avl){
 	}
 }
  
- void rotacaoSimplesEsq(TipoApontador *ppRaiz){
+void rotacaoSimplesEsq(TipoApontador *ppRaiz){
 	 TipoApontador pAux;
 	 pAux = (*ppRaiz)->dir;
 	 (*ppRaiz)->dir = pAux->esq;
@@ -156,7 +156,7 @@ int rotacaoDuplaDir(TipoApontador *ppRaiz){
 	 return 0;
 }
 
-int BalancaEsquerda(TipoApontador *ppRaiz){
+int balancaEsquerda(TipoApontador *ppRaiz){
 	 int fbe = fatorBalanceamento((*ppRaiz)->esq);
 	 if ( fbe > 0 ) {
 	 rotacaoSimplesDir(ppRaiz);
@@ -170,7 +170,7 @@ int BalancaEsquerda(TipoApontador *ppRaiz){
 	 return 0;
 }
 
-int BalancaDireita(TipoApontador *ppRaiz){
+int balancaDireita(TipoApontador *ppRaiz){
 	 int fbd = fatorBalanceamento( (*ppRaiz)->dir);
 	 if ( fbd < 0 ){
 	 rotacaoSimplesEsq(ppRaiz);
@@ -184,6 +184,48 @@ int BalancaDireita(TipoApontador *ppRaiz){
 	 return 0;
 }
 
+int balanceamento(TipoApontador *ppRaiz){
+	int fb = fatorBalanceamento(*ppRaiz);
+	if ( fb > 1) return balancaEsquerda(ppRaiz);
+	else if (fb < -1 ) return balancaDireita(ppRaiz);
+	else return 0;
+}
+
+int insereAVL(TipoApontador *ppRaiz, ArvoreInfo *ai, Palavra x){ 
+	 if (*ppRaiz == NULL){
+		 *ppRaiz =(TipoApontador) malloc(sizeof(TipoNo));
+		 (*ppRaiz)->p = x;
+		 (*ppRaiz)->qtd = 1;
+		 (*ppRaiz)->esq = NULL;
+		 (*ppRaiz)->dir = NULL;
+		 ai->cmp++;
+		 return 1;
+	 } else if (strcmp(x.palavra,(*ppRaiz)->p.palavra) > 0){
+	 	 ai->cmp++;
+	 	if(insereAVL(&(*ppRaiz)->esq,ai,x)){
+		 ai->cmp++;
+		if(balanceamento(ppRaiz)){
+		 ai->cmp++;
+		return 0;
+		} else {
+	 	 ai->cmp++;
+		 return 1;
+		 } 
+	  }
+	} else if(strcmp(x.palavra,(*ppRaiz)->p.palavra) < 0){
+	 	ai->cmp++;
+	 	if (insereAVL(&(*ppRaiz)->dir, ai,x)){
+	 		ai->cmp++;
+		 if (balanceamento(ppRaiz)){
+		 	ai->cmp++;
+		 	return 0;
+		 } else return 1;
+	  } else {
+		ai->cmp++;
+		return 0;
+	 } 
+	} else return 0; 
+}
 
 int main(){
     FILE *fp;
@@ -198,22 +240,24 @@ int main(){
     //scanf("%s",file);
     
     fp = fopen(file, "r");
-	time_t inicio = time(NULL);
+	abb.tempo = time(NULL);
     if(fp == NULL) {
 		printf("Erro de leitura\n");
     	exit(1);
     }
     
+    //ABB
     while(fscanf(fp, "%s", name ) != EOF ) {inserirABB(removeEspeciais(name),&arvoreBB,&abb);}
     fclose(fp);
-    finalizaTempo(inicio, &abb);
+    finalizaTempo(&abb);
      
+    //AVL
 	fp = fopen(file, "r");
     inicializarABBeAVL(&arvoreAVL,&avl);
     avl.tempo = time(NULL);
-//	while(fscanf(fp, "%s", name ) != EOF ) {inserirHeap(removeEspeciais(name),&arvoreAVL,&avl);}
+	while(fscanf(fp, "%s", name ) != EOF ) {insereAVL(&arvoreAVL,&avl,removeEspeciais(name));}
     fclose(fp);
-    
+	finalizaTempo(&avl);
 	//imprimeABB(arvoreBB);
     
     return 0;
