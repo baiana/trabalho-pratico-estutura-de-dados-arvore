@@ -5,6 +5,10 @@
 
 typedef struct TipoNo *TipoApontador;
 typedef struct Palavra{ char palavra[50];} Palavra;
+typedef struct palavraHeap{ 
+int qtd;
+char palavra[50];} palavraHeap;
+
 typedef struct arvoreInfo{
 	int cmp;
 	double tempo;	
@@ -15,6 +19,12 @@ typedef struct TipoNo {
 	int qtd;
 	TipoApontador esq, dir;
 } TipoNo;
+
+typedef struct TipoHeap{
+ palavraHeap *p;
+ int tamanhoAtual;
+ int tamanhoMaximo;
+} TipoHeap;
 
 void imprimeInfo(ArvoreInfo a){ 
 printf("%d comparacoes\n%.4lf\n\n",a.cmp,a.tempo);
@@ -238,6 +248,48 @@ void imprimeAVL(TipoApontador arv){
 	}
 }
 
+//Auxiliares HEAP
+int pai(int i){ return i/2;}
+int filhoEsquerda(int i){ return 2*i;}
+int filhoDireita(int i){ return 2*i + 1;}
+
+//HEAP
+void inicializarHeap(TipoHeap * h, int tamanhoMax){
+ 	h->p = (palavraHeap*) malloc(sizeof(palavraHeap)*(tamanhoMax+1));
+	h->tamanhoAtual = 0;
+	h->tamanhoMaximo = tamanhoMax;
+}
+
+int inserirHeap(TipoHeap * h, palavraHeap p, ArvoreInfo *ai){
+ int i, c=0, equal=0;
+ palavraHeap temp;
+ while(equal == 0 && c < h->tamanhoAtual){
+	ai->cmp + 2;
+	if(strcmp(h->p[c].palavra, p.palavra) == 0){
+		 equal= 1;
+ 		h->p[c].qtd++;
+	 }
+	 c++;
+ }
+ if(equal ==0){
+ 	ai->cmp++;
+	 if (h->tamanhoAtual == h->tamanhoMaximo) return 0;
+	 (h->tamanhoAtual)++;
+	 i = h->tamanhoAtual;
+	 h->p[i] = p;
+	 h->p[i].qtd = 1;
+	 
+	 while ((i>1) &&  strcmp(h->p[pai(i)].palavra, h->p[i].palavra) > 0){
+	 	ai->cmp++;
+		 temp = h->p[i];
+	 	h->p[i] = h->p[pai(i)];
+	 	h->p[pai(i)] = temp;
+	 	i = pai(i);
+	}
+ }
+ return 1;
+}
+
 int main(){
     FILE *fp;
 	char name[50];
@@ -258,7 +310,8 @@ int main(){
     }
     
     //ABB
-    while(fscanf(fp, "%s", name ) != EOF ) {inserirABB(removeEspeciais(name),&arvoreBB,&abb);}
+    while(fscanf(fp, "%s", name ) != EOF ) {inserirABB(removeEspeciais(name),&arvoreBB,&abb);
+	count++;}
     fclose(fp);
     finalizaTempo(&abb);
     imprimeABB(arvoreBB);
@@ -272,5 +325,14 @@ int main(){
 	finalizaTempo(&avl);
 	imprimeAVL(arvoreAVL);
     
+	//HEAP
+	fp = fopen(file, "r");
+    heap.tempo = time(NULL);
+	inicializarHeap(&arvoreHEAP, count);
+	while(fscanf(fp, "%s", name ) != EOF ) {insereAVL(&arvoreAVL,&avl,removeEspeciais(name));}
+    fclose(fp);
+	finalizaTempo(&avl);
+	imprimeAVL(arvoreAVL);
+
     return 0;
 }
