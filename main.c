@@ -70,7 +70,7 @@ Palavra removeEspeciais(char* name){
 void finalizaTempo(ArvoreInfo *info){
 	time_t fim = time(NULL); 
 	info->tempo = difftime(fim, info->tempo);
-	printf("\ntempo abb: %lf\ntempo compara:%d",info->tempo,info->cmp);
+	printf("\ntempo abb: %lf\ntempo compara:%d\n",info->tempo,info->cmp);
 	//https://www.techiedelight.com/find-execution-time-c-program/
 }
 
@@ -224,7 +224,18 @@ int insereAVL(TipoApontador *ppRaiz, ArvoreInfo *ai, Palavra x){
 		ai->cmp++;
 		return 0;
 	 } 
-	} else return 0; 
+	} else{
+	(*ppRaiz)->qtd++;	
+	return 0; 
+	} 
+}
+
+void imprimeAVL(TipoApontador arv){
+ if(arv!=NULL){
+	imprimeAVL(arv->esq);
+ 	printf("%s: %d\n",arv->p.palavra,arv->qtd);
+	imprimeAVL(arv->dir);
+	}
 }
 
 int main(){
@@ -250,15 +261,16 @@ int main(){
     while(fscanf(fp, "%s", name ) != EOF ) {inserirABB(removeEspeciais(name),&arvoreBB,&abb);}
     fclose(fp);
     finalizaTempo(&abb);
+    imprimeABB(arvoreBB);
      
     //AVL
 	fp = fopen(file, "r");
-    inicializarABBeAVL(&arvoreAVL,&avl);
     avl.tempo = time(NULL);
+	inicializarABBeAVL(&arvoreAVL,&avl);
 	while(fscanf(fp, "%s", name ) != EOF ) {insereAVL(&arvoreAVL,&avl,removeEspeciais(name));}
     fclose(fp);
 	finalizaTempo(&avl);
-	//imprimeABB(arvoreBB);
+	imprimeAVL(arvoreAVL);
     
     return 0;
 }
