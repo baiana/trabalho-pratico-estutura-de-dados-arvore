@@ -1,17 +1,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/time.h>
 #include <time.h>
 
 typedef struct TipoNo *TipoApontador;
 typedef struct Palavra{ char palavra[50];} Palavra;
 typedef struct palavraHeap{ 
-int qtd;
-char palavra[50];} palavraHeap;
+	int qtd;
+	char palavra[50];
+	} palavraHeap;
 
 typedef struct arvoreInfo{
 	int cmp;
-	double tempo;	
+	struct timeval tempo;
+	long final;	
 }ArvoreInfo;
 
 typedef struct TipoNo {
@@ -27,13 +30,12 @@ typedef struct TipoHeap{
 } TipoHeap;
 
 void imprimeInfo(ArvoreInfo a){ 
-printf("%d comparacoes\n%.4lf segundos\n\n",a.cmp,a.tempo);
+printf("%d comparacoes\n%d segundos\n\n",a.cmp,a.final);
 }
 //Operacoes para arvore ABB
 void inicializarABBeAVL(TipoApontador  *arvore,ArvoreInfo *ai) {
 	 *arvore = NULL;
 	 ai->cmp = 0;
-	 ai->tempo = 0.0;
 }
 
 void inserirABB(Palavra x, TipoApontador *arvore,ArvoreInfo *ai){
@@ -78,13 +80,14 @@ Palavra removeEspeciais(char* name){
 }
 
 void finalizaTempo(ArvoreInfo *info){
-	time_t fim = time(NULL); 
-	info->tempo = difftime(fim, info->tempo);
+	struct timeval fim;
+	gettimeofday(&fim, NULL);
+	info->final = (fim.tv_sec - info->tempo.tv_sec);
 	//https://www.techiedelight.com/find-execution-time-c-program/
 }
 
 //Operacoes para arvore AVL
-void imprimeArvores(ArvoreInfo abb, ArvoreInfo heap, ArvoreInfo avl){
+void imprimeArvores(ArvoreInfo abb, ArvoreInfo heap, ArvoreInfo avl, TipoApontador aabb, TipoApontador aavl, TipoHeap aheap){
 	printf("heap:\n");
 	imprimeInfo(heap);
 	printf("abb:\n");
@@ -92,14 +95,20 @@ void imprimeArvores(ArvoreInfo abb, ArvoreInfo heap, ArvoreInfo avl){
 	printf("avl:\n");
 	imprimeInfo(avl);
 	
-	double menor = avl.tempo;
-		if(menor > abb.tempo){menor = abb.tempo;} 
-		if(menor > heap.tempo){	menor = heap.tempo;} 
-		if(abb.tempo > heap.tempo){	menor = heap.tempo;} else {menor=abb.tempo;}
+	long menor = avl.final;
+		if(menor > abb.final){menor = abb.final;} 
+		if(menor > heap.final){	menor = heap.final;} 
+		if(abb.final > heap.final){	menor = heap.final;} else {menor=abb.final;}
 		
-		if(menor == abb.tempo){printf("\n abb menor");}
-		else if(menor == heap.tempo){printf("\n heap menor");}
-		else{printf("\n avl menor");}		
+		if(menor == abb.final){
+		imprimeABB(aabb);
+		}
+		else if(menor == heap.final){
+		imprimeHeap(aheap,0);
+		}
+		else{
+		imprimeAVL(aavl);
+		}		
 }
  
 void rotacaoSimplesEsq(TipoApontador *ppRaiz){
@@ -264,7 +273,7 @@ void inicializarHeap(TipoHeap * h, int tamanhoMax, ArvoreInfo * ai){
 	h->tamanhoAtual = 0;
 	h->tamanhoMaximo = tamanhoMax;
 	ai->cmp = 0;
-	ai->tempo =0;
+	ai->final =0;
 }
 
 int inserirHeap(TipoHeap * h, palavraHeap p, ArvoreInfo *ai){
@@ -310,7 +319,9 @@ int main(){
     //scanf("%s",file);
     
     fp = fopen(file, "r");
-	abb.tempo = 1+time(NULL);
+	gettimeofday(&abb.tempo, NULL);
+	sleep(2);
+		
     if(fp == NULL) {
 		printf("Erro de leitura\n");
     	exit(1);
@@ -325,7 +336,8 @@ int main(){
      
     //AVL
 	fp = fopen(file, "r");
-    avl.tempo = 5+time(NULL);
+     gettimeofday(&avl.tempo, NULL);
+    sleep(2);
 	inicializarABBeAVL(&arvoreAVL,&avl);
 	while(fscanf(fp, "%s", name ) != EOF ) {insereAVL(&arvoreAVL,&avl,removeEspeciais(name));}
     fclose(fp);
@@ -337,7 +349,8 @@ int main(){
 	palavraHeap p;
 	Palavra pse;
 	inicializarHeap(&arvoreHEAP, count,&heap);
-    heap.tempo = 3+time(NULL);
+    gettimeofday(&heap.tempo , NULL);
+    sleep(2);
 	while(fscanf(fp, "%s", name ) != EOF ) {
 		pse = removeEspeciais(name);
 	 	strcpy(p.palavra, pse.palavra);
@@ -345,7 +358,7 @@ int main(){
 	}
     fclose(fp);
 	finalizaTempo(&heap);
-	imprimeArvores(abb,heap,avl);
+	imprimeArvores(abb,heap,avl,arvoreBB,arvoreAVL,arvoreHEAP);
 	//imprimeHeap(arvoreHEAP);
 
     return 0;
