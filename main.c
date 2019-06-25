@@ -301,19 +301,22 @@ void imprimeArvores(ArvoreInfo abb, ArvoreInfo heap, ArvoreInfo avl, TipoApontad
 		//printf("sai do if com menor == %d\navl:%d\nheap:%d\nabb:%d\n",menor,avl.micros,heap.micros,abb.micros);
 		if(menor == abb.micros){
 		imprimeABB(aabb);
+		printf("\n abb menor com %d milesegundos",abb.micros);
 		}
 		else if(menor == heap.micros){
 		imprimeHeap(aheap);
+			printf("\n heap menor com %d milesegundos",heap.micros);
 		}
 		else{
 		imprimeAVL(aavl);
+			printf("\n avl menor com %f milesegundos",avl.micros);
 		}		
 }
  
 
 int main(){
     FILE *fp;
-	char name[50];
+	char name[50],file[60];
 	int count = 0, i=0;
 	
 	ArvoreInfo abb,avl,heap;
@@ -321,8 +324,7 @@ int main(){
 	TipoHeap arvoreHEAP;
     inicializarABBeAVL(&arvoreBB,&abb);
 	
-	char file[60] = "Untitled.txt";
-    //scanf("%s",file);
+    scanf("%s",file);
     
     fp = fopen(file, "r");
 	gettimeofday(&abb.tempo, NULL);
