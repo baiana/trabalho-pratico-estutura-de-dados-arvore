@@ -301,16 +301,15 @@ void imprimeArvores(ArvoreInfo abb, ArvoreInfo heap, ArvoreInfo avl, TipoApontad
 		//printf("sai do if com menor == %d\navl:%d\nheap:%d\nabb:%d\n",menor,avl.micros,heap.micros,abb.micros);
 		if(menor == abb.micros){
 		imprimeABB(aabb);
-		printf("\n abb menor com %d milesegundos",abb.micros);
-		}
-		else if(menor == heap.micros){
+		}	else if(menor == heap.micros){
 		imprimeHeap(aheap);
-			printf("\n heap menor com %d milesegundos",heap.micros);
-		}
-		else{
+		}else{
 		imprimeAVL(aavl);
-			printf("\n avl menor com %f milesegundos",avl.micros);
-		}		
+	
+		}
+		//printf("\n abb menor com %d milesegundos",abb.micros);
+		//printf("\n avl menor com %f milesegundos",avl.micros);
+		//printf("\n heap menor com %d milesegundos",heap.micros);		
 }
  
 
